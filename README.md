@@ -323,3 +323,95 @@ cfht_access_token: str = ""
 ### Helpful Links
 
 [Kealahou Phase 1 & 2 tool - staging](https://hou-stage.cfht.hawaii.edu/)
+
+## Murriyang (Parkes radio telescope)
+
+Murriyang is operated by CSIRO's Australia Telescope National Facility (ATNF).
+The observatory cannot be called from outside, so requests are queued on a
+relay that both sides can reach. The observatory polls the relay and turns each
+request into a Scheduling Block, so `submit_observation` returns a ticket at once
+and you poll for progress. Only tracking a single sidereal (ICRS) target is supported, with the UWL
+receiver (`UwlTrack`) or the CryoPAF receiver (`CryopafTrack`). Each class offers
+only the settings that apply to its receiver.
+
+### Configuration values
+
+See [configuration](#configuration) for instructions on setting these values.
+
+```python
+murriyang_api_root: str = ""
+murriyang_token: str = ""
+```
+
+### Usage
+
+`target` and `duration` (seconds) are required. Every other field overrides the
+observatory's defaults for that receiver, so leave it unset unless you need it.
+
+```python
+from aeonlib.atnf.murriyang.facility import MurriyangFacility
+from aeonlib.atnf.murriyang.models import CryopafTrack
+from aeonlib.models import SiderealTarget
+
+track = CryopafTrack(
+    target=SiderealTarget(name="S9", type="ICRS", ra="17h52m05.5s", dec="-34d25m41.8s"),
+    duration=300,
+)
+facility = MurriyangFacility()
+facility.validate_observation(track)  # local check only, no network call
+ticket = facility.submit_observation(track)  # queued; returns at once
+status = facility.get_observation_status(ticket)  # status.state, status.sb_id
+facility.cancel_observation(ticket)  # works until the observatory picks it up
+```
+
+For a dry run, `submit_observation(track, dry_run=True)` makes the observatory
+build the parset without submitting it; read it from `status.parset` once
+`status.terminal` is true. Pass a timezone-aware `expires=` to stop a request
+being acted on if it waits too long, which matters for a target of opportunity.
+
+```python
+status = facility.get_observation_status(ticket)
+while not status.terminal:  # a real client would sleep between polls
+    status = facility.get_observation_status(ticket)
+```
+
+### Generated models
+
+`src/aeonlib/atnf/_generated.py` (shared by Murriyang and ASKAP) is generated from
+ATNF's Scheduling Block parameter definitions, so do not edit it.
+`just update-atnf` regenerates it and needs the ATNF-provided
+`atnf-aeonlib-bridge` package.
+
+## ASKAP
+
+Like Murriyang, requests are queued on a relay for the observatory to pick up
+(see above for `get_observation_status`, `cancel_observation`, `dry_run` and
+`expires`). `AskapStandard` observes one sidereal (ICRS) target, for
+example a target of opportunity.
+
+### Configuration values
+
+See [configuration](#configuration) for instructions on setting these values.
+
+```python
+askap_api_root: str = ""
+askap_token: str = ""
+```
+
+### Usage
+
+`target` and `duration` (seconds) are required. Every other field overrides the
+observatory's default, so leave it unset unless you need it.
+
+```python
+from aeonlib.atnf.askap.facility import AskapFacility
+from aeonlib.atnf.askap.models import AskapStandard
+from aeonlib.models import SiderealTarget
+
+request = AskapStandard(
+    target=SiderealTarget(name="GRB261010A", type="ICRS", ra=248.749083, dec=26.580194),
+    duration=21600,
+)
+facility = AskapFacility()
+ticket = facility.submit_observation(request, dry_run=True)  # nothing is submitted
+```

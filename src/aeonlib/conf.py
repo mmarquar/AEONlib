@@ -48,5 +48,13 @@ class Settings(BaseSettings):
     cfht_api_root: str = "https://api-stage.cfht.hawaii.edu/"
     cfht_access_token: str = ""
 
+    # Murriyang (Parkes radio telescope)
+    murriyang_api_root: str = ""
+    murriyang_token: str = ""
+
+    # ASKAP
+    askap_api_root: str = ""
+    askap_token: str = ""
+
 
 settings = Settings()

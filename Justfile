@@ -30,6 +30,11 @@ update-saao:
 update-cfht:
     codegen/cfht/generator.py > src/aeonlib/cfht/models.py
 
+# Update the ATNF generated models. Needs the atnf-aeonlib-bridge package, which
+# provides the aeonlib-export-models command
+update-atnf:
+    aeonlib-export-models > src/aeonlib/atnf/_generated.py
+
 # Update all generated instrument files
 update-all: update-lco update-soar update-saao update-blanco
     @echo "All updates completed"

@@ -57,7 +57,8 @@ log_cli_format = "%(levelname)s [%(name)s %(filename)s:%(lineno)s %(funcName)s()
 extend-exclude = [
     "*.ipynb",
     "src/aeonlib/ocs/**/instruments.py",
-    "src/aeonlib/cfht/models.py"
+    "src/aeonlib/cfht/models.py",
+    "src/aeonlib/atnf/_generated.py"
 ]
 force-exclude = true
 
