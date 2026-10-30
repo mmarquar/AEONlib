@@ -50,24 +50,22 @@ def test_settings_are_required():
 
 
 def test_submit_queues_a_standard_request(target):
-    seen = {}
+    sent = []
 
     def handler(request):
-        seen["url"] = str(request.url)
-        seen["body"] = json.loads(request.content)
-        return httpx.Response(202, json={"id": "t1"})
+        sent.append(request)
+        return httpx.Response(201)
 
-    facility = AskapFacility(Settings(askap_api_root=API_ROOT, askap_token="t"))
-    facility._client = httpx.Client(
-        base_url=API_ROOT + "/", transport=httpx.MockTransport(handler)
+    facility = AskapFacility(
+        Settings(askap_api_root=API_ROOT, askap_token="t"),
+        transport=httpx.MockTransport(handler),
     )
-
-    ticket = facility.submit_observation(
+    request_id = facility.submit_observation(
         AskapStandard(target=target, duration=60), dry_run=True
     )
 
-    assert ticket == "t1"
-    assert seen["url"] == "http://askap-relay.test/api/requests"
-    assert seen["body"]["mode"] == "standard"
-    assert seen["body"]["dry_run"] is True
-    assert "receiver" not in seen["body"]["request"]
+    assert sent[0].url == f"{API_ROOT}/requests/{request_id}"
+    body = json.loads(sent[0].content)
+    assert body["mode"] == "standard"
+    assert body["dry_run"] is True
+    assert "receiver" not in body["request"]

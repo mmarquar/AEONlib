@@ -329,7 +329,7 @@ cfht_access_token: str = ""
 Murriyang is operated by CSIRO's Australia Telescope National Facility (ATNF).
 The observatory cannot be called from outside, so requests are queued on a
 relay that both sides can reach. The observatory polls the relay and turns each
-request into a Scheduling Block, so `submit_observation` returns a ticket at once
+request into a Scheduling Block, so `submit_observation` returns a request id at once
 and you poll for progress. Only tracking a single sidereal (ICRS) target is supported, with the UWL
 receiver (`UwlTrack`) or the CryoPAF receiver (`CryopafTrack`). Each class offers
 only the settings that apply to its receiver.
@@ -359,20 +359,22 @@ track = CryopafTrack(
 )
 facility = MurriyangFacility()
 facility.validate_observation(track)  # local check only, no network call
-ticket = facility.submit_observation(track)  # queued; returns at once
-status = facility.get_observation_status(ticket)  # status.state, status.sb_id
-facility.cancel_observation(ticket)  # works until the observatory picks it up
+request_id = facility.submit_observation(track)  # queued; returns at once
+status = facility.get_observation_status(request_id)  # status.state, status.sb_id
+facility.cancel_observation(request_id)  # works until the observatory picks it up
 ```
 
 For a dry run, `submit_observation(track, dry_run=True)` makes the observatory
 build the parset without submitting it; read it from `status.parset` once
 `status.terminal` is true. Pass a timezone-aware `expires=` to stop a request
 being acted on if it waits too long, which matters for a target of opportunity.
+To retry a submission that failed part way, pass the same `request_id=` again;
+the request is not queued twice.
 
 ```python
-status = facility.get_observation_status(ticket)
+status = facility.get_observation_status(request_id)
 while not status.terminal:  # a real client would sleep between polls
-    status = facility.get_observation_status(ticket)
+    status = facility.get_observation_status(request_id)
 ```
 
 ### Generated models
@@ -413,5 +415,5 @@ request = AskapStandard(
     duration=21600,
 )
 facility = AskapFacility()
-ticket = facility.submit_observation(request, dry_run=True)  # nothing is submitted
+request_id = facility.submit_observation(request, dry_run=True)  # nothing is submitted
 ```
