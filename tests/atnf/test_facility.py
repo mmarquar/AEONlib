@@ -19,7 +19,7 @@ SETTINGS = Settings(
 @pytest.fixture
 def track():
     target = SiderealTarget(name="S9", type="ICRS", ra=268.0, dec=-34.4)
-    return CryopafTrack(target=target, duration=300)
+    return CryopafTrack(program="P747", target=target, duration=300)
 
 
 def facility(handler) -> MurriyangFacility:
@@ -75,7 +75,7 @@ def test_naive_expiry_is_rejected(track):
 
 def test_unsupported_target_is_rejected_locally():
     target = SiderealTarget(name="x", type="HOUR_ANGLE", ra=1.0, dec=1.0)
-    track = UwlTrack(target=target, duration=300)
+    track = UwlTrack(program="P747", target=target, duration=300)
     unused = facility(lambda request: httpx.Response(500))
 
     with pytest.raises(ValueError, match="only supports ICRS"):

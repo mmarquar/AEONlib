@@ -17,7 +17,7 @@ def target():
 
 
 def test_minimal_request_sets_only_the_caller_fields(target):
-    request = AskapStandard(target=target, duration=21600)
+    request = AskapStandard(program="AS999", target=target, duration=21600)
 
     assert request.to_sb_params() == {
         "duration": 21600.0,
@@ -27,7 +27,9 @@ def test_minimal_request_sets_only_the_caller_fields(target):
 
 
 def test_a_setting_opl_does_not_model_can_still_be_tuned(target):
-    request = AskapStandard(target=target, duration=21600, align_to_beam=0)
+    request = AskapStandard(
+        program="AS999", target=target, duration=21600, align_to_beam=0
+    )
 
     assert request.to_sb_params()["align_to_beam"] == 0
 
@@ -61,7 +63,7 @@ def test_submit_queues_a_standard_request(target):
         transport=httpx.MockTransport(handler),
     )
     request_id = facility.submit_observation(
-        AskapStandard(target=target, duration=60), dry_run=True
+        AskapStandard(program="AS999", target=target, duration=60), dry_run=True
     )
 
     assert sent[0].url == f"{API_ROOT}/requests/{request_id}"

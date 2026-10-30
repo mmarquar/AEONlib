@@ -350,8 +350,8 @@ outside your allocation fails there.
 
 ### Usage
 
-`target` and `duration` (seconds) are required. Every other field overrides the
-observatory's defaults for that receiver, so leave it unset unless you need it.
+`program` (your ATNF observing program), `target` and `duration` (seconds) are
+required. Every other field overrides the observatory's defaults for that receiver, so leave it unset unless you need it.
 
 ```python
 from aeonlib.atnf.murriyang.facility import MurriyangFacility
@@ -359,6 +359,7 @@ from aeonlib.atnf.murriyang.models import CryopafTrack
 from aeonlib.models import SiderealTarget
 
 track = CryopafTrack(
+    program="P747",
     target=SiderealTarget(name="S9", type="ICRS", ra="17h52m05.5s", dec="-34d25m41.8s"),
     duration=300,
 )
@@ -409,8 +410,8 @@ askap_token: str = ""
 
 ### Usage
 
-`target` and `duration` (seconds) are required. Every other field overrides the
-observatory's default, so leave it unset unless you need it.
+`program`, `target` and `duration` (seconds) are required. Every other field
+overrides the observatory's default, so leave it unset unless you need it.
 
 ```python
 from aeonlib.atnf.askap.facility import AskapFacility
@@ -418,6 +419,7 @@ from aeonlib.atnf.askap.models import AskapStandard
 from aeonlib.models import SiderealTarget
 
 request = AskapStandard(
+    program="AS999",
     target=SiderealTarget(name="GRB261010A", type="ICRS", ra=248.749083, dec=26.580194),
     duration=21600,
 )
