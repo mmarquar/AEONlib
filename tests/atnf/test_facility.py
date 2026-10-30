@@ -49,6 +49,7 @@ def test_submit_puts_the_request_under_its_id(track):
     assert sent[0].headers["Authorization"] == "Bearer secret"
     body = json.loads(sent[0].content)
     assert body["mode"] == "track"
+    assert body["token"] == "secret"
     assert body["dry_run"] is False
     assert "expires" not in body
     assert body["request"]["receiver"] == "cryopaf"

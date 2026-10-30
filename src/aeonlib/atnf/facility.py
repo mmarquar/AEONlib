@@ -53,7 +53,8 @@ class AtnfFacility(ABC):
         settings: Settings = default_settings,
         transport: httpx.BaseTransport | None = None,
     ):
-        headers = {"Authorization": f"Bearer {self.api_key(settings)}"}
+        self.token = self.api_key(settings)
+        headers = {"Authorization": f"Bearer {self.token}"}
         self.client: httpx.Client = httpx.Client(
             base_url=self.api_root(settings), headers=headers, transport=transport
         )
@@ -74,9 +75,11 @@ class AtnfFacility(ABC):
         dry_run: bool = False,
         expires: datetime | None = None,
     ) -> str:
-        """Queue a request and return its id. Submitting again with the same id
-        does not queue it twice. A dry run builds the parset without submitting
-        it. A request is not acted on after `expires`.
+        """Queue a request and return its id. The observing token is sent with
+        the request so the observatory can check it against your allocation.
+        Submitting again with the same id does not queue it twice. A dry run
+        builds the parset without submitting it. A request is not acted on after
+        `expires`.
         """
         observation.to_sb_params()
         if expires is not None and expires.tzinfo is None:
@@ -85,6 +88,7 @@ class AtnfFacility(ABC):
         payload: dict[str, Any] = {
             "mode": observation.mode,
             "dry_run": dry_run,
+            "token": self.token,
             "request": observation.model_dump(mode="json", exclude_none=True),
         }
         if expires is not None:

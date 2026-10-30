@@ -343,6 +343,11 @@ murriyang_api_root: str = ""
 murriyang_token: str = ""
 ```
 
+`murriyang_token` is your ATNF observing token. ATNF issues it for your project;
+it identifies you and your allocation, including the windows you may observe in.
+It is sent with every request and checked at the observatory, so a request
+outside your allocation fails there.
+
 ### Usage
 
 `target` and `duration` (seconds) are required. Every other field overrides the
@@ -399,6 +404,8 @@ See [configuration](#configuration) for instructions on setting these values.
 askap_api_root: str = ""
 askap_token: str = ""
 ```
+
+`askap_token` is your ATNF observing token for ASKAP, as for Murriyang.
 
 ### Usage
 
