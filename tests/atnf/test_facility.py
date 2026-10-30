@@ -26,15 +26,6 @@ def facility(handler) -> MurriyangFacility:
     return MurriyangFacility(SETTINGS, transport=httpx.MockTransport(handler))
 
 
-def test_settings_are_required():
-    with pytest.raises(ValueError, match="AEON_MURRIYANG_API_ROOT"):
-        MurriyangFacility(Settings(murriyang_api_root="", murriyang_token="t"))
-    with pytest.raises(ValueError, match="AEON_MURRIYANG_TOKEN"):
-        MurriyangFacility(
-            Settings(murriyang_api_root="https://relay.test", murriyang_token="")
-        )
-
-
 def test_submit_puts_the_request_under_its_id(track):
     sent = []
 

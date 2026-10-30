@@ -1,7 +1,9 @@
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
+from aeonlib.atnf.murriyang.facility import MurriyangFacility
 from aeonlib.atnf.murriyang.models import MURRIYANG_TRACKS, CryopafTrack, UwlTrack
+from aeonlib.conf import Settings
 from aeonlib.models import SiderealTarget
 
 
@@ -77,3 +79,12 @@ def test_json_round_trip_picks_the_class_from_the_receiver(target):
 
     uwl = UwlTrack(target=target, duration=60)
     assert isinstance(adapter.validate_python(uwl.model_dump(mode="json")), UwlTrack)
+
+
+def test_settings_are_required():
+    with pytest.raises(ValueError, match="AEON_MURRIYANG_API_ROOT"):
+        MurriyangFacility(Settings(murriyang_api_root="", murriyang_token="t"))
+    with pytest.raises(ValueError, match="AEON_MURRIYANG_TOKEN"):
+        MurriyangFacility(
+            Settings(murriyang_api_root="https://relay.test", murriyang_token="")
+        )
